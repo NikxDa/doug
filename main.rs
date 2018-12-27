@@ -27,7 +27,7 @@ fn main () {
             "A".to_string ()
         );
 
-        let dns_regex = Regex::new (r"@[0-9\.]+").unwrap ();
+        let dns_regex = Regex::new (r"@.+").unwrap ();
         let type_regex = Regex::new (r"[A-Z]{1,5}").unwrap ();
 
         for itm in args {

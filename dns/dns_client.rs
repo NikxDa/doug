@@ -3,7 +3,7 @@ use std::fs;
 use regex::Regex;
 use rand::Rng;
 
-use crate::dns::{DnsHeader, DnsQuestion, DnsRequest, DnsResponse, DnsClass, DnsRecordType};
+use crate::dns::{DnsHeader, DnsQuestion, DnsResourceRecord, DnsRequest, DnsResponse, DnsClass, DnsRecordType};
 use crate::byte_serializable::ByteSerializable;
 
 pub struct DnsClient {
@@ -17,8 +17,10 @@ impl DnsClient {
         let dns_addr: Ipv4Addr = Self::get_local_dns_addr ();
         let local_addr: Ipv4Addr = "0.0.0.0".parse ().expect ("Could not parse local DNS address.");
 
+        let local_port = rand::thread_rng ().gen_range (50000, 60000);
+
         let dns_sock_addr = SocketAddr::new(IpAddr::V4 (dns_addr), 53);
-        let local_sock_addr = SocketAddr::new(IpAddr::V4 (local_addr), 51525);
+        let local_sock_addr = SocketAddr::new(IpAddr::V4 (local_addr), local_port);
 
         return DnsClient {
             dns_addr: dns_sock_addr,
@@ -28,7 +30,26 @@ impl DnsClient {
     }
 
     pub fn set_dns_address (&mut self, dns_addr: String) -> &DnsClient {
-        let new_dns_addr: Ipv4Addr = dns_addr.parse ().expect ("Invalid DNS address.");
+        let new_dns_addr: Ipv4Addr = match dns_addr.parse () {
+            Ok(itm) => itm,
+            Err(_) => {
+                let lookup_client = DnsClient::new ();
+                let records: Vec<DnsResourceRecord> = lookup_client.lookup (dns_addr, DnsRecordType::A).resource_records;
+                if records.len () > 0 {
+                    let ip_string: String = records.first ().unwrap ().data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");
+
+                    let ip_addr: Ipv4Addr = match ip_string.parse () {
+                        Ok(itm) => itm,
+                        Err (_) => return self
+                    };
+
+                    ip_addr
+                } else {
+                    return self;
+                }
+            }
+        };
+
         self.dns_addr = SocketAddr::new(IpAddr::V4 (new_dns_addr), 53);
         return self;
     }
