@@ -1,0 +1,18 @@
+[package]
+name = "doug"
+version = "0.1.0"
+authors = ["NikxDa <NikxDa@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+rand = "0.4"
+colored = "1.6"
+enum-primitive-derive = "^0.1"
+num-traits = "^0.1"
+regex="1"
+strum = "0.13.0"
+strum_macros = "0.13.0"
+
+[[bin]]
+name = "doug"
+path = "main.rs"
