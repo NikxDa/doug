@@ -1,4 +1,5 @@
-use crate::dns::{DnsRecordType};
+use crate::dns::{DnsRecordType, DnsRecordData, DnsResourceRecord};
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 pub struct DnsUtils;
 
@@ -43,8 +44,29 @@ impl DnsUtils {
         (name, bytes_read)
     }
 
-    pub fn read_resource_record_data (record_type: DnsRecordType, bytes: Vec<u8>) -> String {
-        return String::new ();
+    pub fn read_resource_record_data (bytes: &Vec<u8>, record_type: DnsRecordType, record_data_offset: usize, record_data_length: usize) -> DnsRecordData {
+        let record_data: Vec<u8> = bytes[record_data_offset..(record_data_offset + record_data_length)].to_vec ();
+        
+        match record_type {
+            DnsRecordType::A => {
+                let ip_addr: Ipv4Addr = record_data
+                    .iter ()
+                    .map (|itm| itm.to_string ())
+                    .collect::<Vec<String>>()
+                    .join (".")
+                    .parse ()
+                    .expect ("Could not parse A record IP address");
+                return DnsRecordData::A { ip_addr: ip_addr };
+            },
+            DnsRecordType::MX => {
+                let priority = DnsUtils::bytes_to_u16 (record_data[0..2].to_vec ());
+                let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
+                return DnsRecordData::MX { priority: priority, name: name };
+            },
+            _ => {
+                panic!("Trying to parse unsupported record type.");
+            }
+        }
     }
 
     pub fn bytes_to_u16 (mut bytes: Vec<u8>) -> u16 {

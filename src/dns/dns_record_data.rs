@@ -1,7 +1,13 @@
-// Primitive Enum Macro
-use enum_primitive_derive::Primitive;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
-#[derive(Debug, Copy, Clone, Primitive, Display, EnumString)]
+#[derive(Debug, Clone)]
 pub enum DnsRecordData {
-    A       (IpAddr)
-}
+    A       { ip_addr: Ipv4Addr },
+    AAAA    { ip_addr: Ipv6Addr },
+    MX      { priority: u16, name: String },
+    TXT     { text: String },
+    CNAME   { name: String },
+    HINFO   { cpu: String, os: String },
+    NS      { name: String },
+    PTR     { name: String },
+}   

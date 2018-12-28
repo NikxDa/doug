@@ -1,6 +1,6 @@
 // Standard Library
 use std::env;
-use crate::dns::{DnsClient, DnsRecordType, DnsResponse};
+use crate::dns::{DnsClient, DnsRecordData, DnsRecordType, DnsResponse};
 use colored::*;
 use regex::Regex;
 use std::str::FromStr;
@@ -66,11 +66,16 @@ fn main () {
     println!("");
 
     for record in dns_result.resource_records {
-        let ip: String = record.data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");
+        let data: String = match record.parsed_data {
+            DnsRecordData::A {ip_addr} => ip_addr.to_string (),
+            DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
+            _ => "<Unsupported>".to_owned ()
+        };
+
         let domain: &String = &dns_result.question.name;
         let record_type: String = record.r#type.to_string ();
 
-        println!("{}\t\t{}\t\t{}", domain.blue (), record_type, ip.green ());
+        println!("{}\t\t{}\t\t{}", domain.blue (), record_type, data.green ());
     }
 }
 

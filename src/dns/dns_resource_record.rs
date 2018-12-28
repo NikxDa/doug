@@ -1,4 +1,4 @@
-use crate::dns::{DnsRecordType, DnsClass};
+use crate::dns::{DnsRecordData, DnsRecordType, DnsClass};
 
 pub struct DnsResourceRecord {
     pub name: String,
@@ -7,4 +7,5 @@ pub struct DnsResourceRecord {
     pub ttl: u32,
     pub length: u16,
     pub data: Vec<u8>,
+    pub parsed_data: DnsRecordData
 }

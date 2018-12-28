@@ -1,5 +1,5 @@
 use crate::byte_serializable::*;
-use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordType, DnsResourceRecord, DnsUtils};
+use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordData, DnsRecordType, DnsResourceRecord, DnsUtils};
 
 use num_traits::{FromPrimitive};
 
@@ -56,13 +56,21 @@ impl ByteSerializable for DnsResponse {
             let record_data = bytes[byte_offset..(byte_offset+(record_data_length as usize))].to_vec ();
             byte_offset += record_data_length as usize;
 
+            let parsed_data = DnsUtils::read_resource_record_data (
+                &bytes,
+                DnsRecordType::from_u16(record_type).unwrap (),
+                byte_offset - record_data_length as usize,
+                record_data_length as usize
+            );
+
             resource_records.push (DnsResourceRecord {
                 name: record_name,
                 r#type: DnsRecordType::from_u16(record_type).unwrap (),
                 class: DnsClass::from_u16(record_class).unwrap (),
                 ttl: record_ttl,
                 length: record_data_length,
-                data: record_data
+                data: record_data,
+                parsed_data: parsed_data
             });
         }
 
