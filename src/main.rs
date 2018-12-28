@@ -84,6 +84,7 @@ fn main () {
         let data: String = match &record.parsed_data {
             DnsRecordData::A {ip_addr} => ip_addr.to_string (),
             DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
+            DnsRecordData::AAAA {ip_addr} => ip_addr.to_string (),
             DnsRecordData::None | _ => "<Unsupported>".to_owned ()
         };
 

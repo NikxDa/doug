@@ -58,6 +58,18 @@ impl DnsUtils {
                     .expect ("Could not parse A record IP address");
                 return DnsRecordData::A { ip_addr: ip_addr };
             },
+            DnsRecordType::AAAA => {
+                let ip_parts: Vec<u16> = record_data
+                    .chunks (2)
+                    .map (|itm| (itm[0] as u16) << 8 | (itm[1] as u16))
+                    .collect::<Vec<u16>>();
+                
+                let ip_addr = Ipv6Addr::new (
+                    ip_parts [0], ip_parts [1], ip_parts [2], ip_parts [3],
+                    ip_parts [4], ip_parts [5], ip_parts [6], ip_parts [7]
+                );
+                return DnsRecordData::AAAA { ip_addr: ip_addr };
+            },
             DnsRecordType::MX => {
                 let priority = DnsUtils::bytes_to_u16 (record_data[0..2].to_vec ());
                 let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
