@@ -15,4 +15,3 @@ strum_macros = "0.13.0"
 
 [[bin]]
 name = "doug"
-path = "main.rs"
