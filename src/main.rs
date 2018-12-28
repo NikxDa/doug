@@ -92,7 +92,7 @@ fn main () {
         let domain: &String = &dns_result.question.name;
         let record_type: String = record.r#type.to_string ();
 
-        println!("{}\t\t{}\t\t{}", domain.blue (), record_type, data.green ());
+        println!("{}\t\t{}\t{}\t\t{}", domain.blue (), record_type, record.ttl.to_string (), data.green ());
     }
 }
 
