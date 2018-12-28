@@ -18,4 +18,5 @@ Clone this repository and run `cargo build --release`. You can then find the bin
 
 ## Example
 > doug nikx.io A @8.8.8.8
+
 ![doug output](https://raw.githubusercontent.com/nikxda/doug/master/doug.jpg)
