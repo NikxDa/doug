@@ -33,17 +33,20 @@ impl DnsClient {
         let new_dns_addr: Ipv4Addr = match dns_addr.parse () {
             Ok(itm) => itm,
             Err(_) => {
-                let lookup_client = DnsClient::new ();
-                let records: Vec<DnsResourceRecord> = lookup_client.lookup (dns_addr, DnsRecordType::A).resource_records;
+                let records: Vec<DnsResourceRecord> = self.lookup (dns_addr, DnsRecordType::A).resource_records;
                 if records.len () > 0 {
-                    let ip_string: String = records.first ().unwrap ().data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");
+                    let ip_string: String = records
+                        .first ()
+                        .unwrap ()
+                        .data
+                        .iter ()
+                        .map (|itm| itm.to_string ())
+                        .collect::<Vec<String>>().join (".");
 
-                    let ip_addr: Ipv4Addr = match ip_string.parse () {
+                    match ip_string.parse () {
                         Ok(itm) => itm,
                         Err (_) => return self
-                    };
-
-                    ip_addr
+                    }
                 } else {
                     return self;
                 }
