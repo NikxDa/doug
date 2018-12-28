@@ -64,7 +64,7 @@ impl DnsUtils {
                 return DnsRecordData::MX { priority: priority, name: name };
             },
             _ => {
-                panic!("Trying to parse unsupported record type.");
+                return DnsRecordData::None;
             }
         }
     }

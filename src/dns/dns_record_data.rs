@@ -10,4 +10,6 @@ pub enum DnsRecordData {
     HINFO   { cpu: String, os: String },
     NS      { name: String },
     PTR     { name: String },
+
+    None
 }   
