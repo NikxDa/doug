@@ -88,7 +88,7 @@ impl DnsClient {
                 let response = DnsResponse::from_bytes (data_vec);
                 return response;
             }
-            Err(error) => {
+            Err(_) => {
                 panic!("Did not receive correct data.");
             }
         }
@@ -112,7 +112,7 @@ impl DnsClient {
                 let default_dns: String = String::from (&captures ["dns"]);
                 return default_dns.parse ().expect ("Could not parse default DNS address.");
             }
-            Err(error) => {
+            Err(_) => {
                 // Fallback to Google DNS
                 let fallback_dns = "8.8.8.8";
                 return fallback_dns.parse ().expect ("Could not parse fallback DNS address.");
