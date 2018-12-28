@@ -22,12 +22,17 @@ fn main () {
     let mut dns_client = DnsClient::new ();
     let dns_result: DnsResponse;
 
+    // Welcome users
+    println!("{}\n", "DouG v0.1".bold ().blue ());
+
     // No args? Interactive!
     if args.len () == 1 {
+        println!("{}", "Entering interactive mode...".bright_black ());
         let url = Console::prompt ("What domain would you like to look up?");
         let record_type = Console::prompt ("What record type do you wish to use?");
 
         dns_result = dns_client.lookup (url, DnsRecordType::from_str (&record_type).unwrap ());
+        println!("");
     } else {
         // Prepare arguments (url, dns, type)
         let mut query: (String, String, String) = (
@@ -56,8 +61,9 @@ fn main () {
         dns_result = dns_client.lookup (query.0, DnsRecordType::from_str (&*query.2).unwrap ());
     }
 
-    println!("DouG v0.1\n");
-    println!("Using DNS server: {}\n", dns_client.dns_addr.ip ().to_string ().blue ());
+    println!("Using DNS Server:\t{}", dns_client.dns_addr.ip ().to_string ().blue ());
+    println!("Querying Record Type:\t{}", dns_result.question.r#type.to_string ().blue ());
+    println!("");
 
     for record in dns_result.resource_records {
         let ip: String = record.data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");

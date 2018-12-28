@@ -5,7 +5,7 @@ pub struct Console;
 
 impl Console {
     pub fn prompt (question: &str) -> String {
-        print!("{} ", question);
+        print!("{} {} ", "?".green (), question.bold ());
         stdout ().flush ().expect ("Failed to flush Stdout");
 
         let stdin = stdin();
@@ -15,7 +15,7 @@ impl Console {
         handle.read_line (&mut answer).expect ("Failed to read from Stdin");
         answer.pop ();
 
-        println!("\x1b[1A{} {}", question, answer.cyan ());
+        println!("\x1b[1A{} {} {}", "?".green (), question.bold (), answer.cyan ());
         stdout ().flush ().expect ("Failed to flush Stdout");
         return answer;
     }
