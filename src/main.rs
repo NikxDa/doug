@@ -34,8 +34,13 @@ fn main () {
         let url = Console::prompt ("What domain would you like to look up?");
         let record_type = Console::prompt ("What record type do you wish to use?");
 
+        let record_type = match DnsRecordType::from_str (&record_type) {
+            Ok(itm) => itm,
+            Err(_) => DnsRecordType::A
+        };
+
         query_url = url.clone ();
-        dns_result = dns_client.lookup (url, DnsRecordType::from_str (&record_type).unwrap ());
+        dns_result = dns_client.lookup (url, record_type);
         println!("");
     } else {
         // Prepare arguments (url, dns, type)
