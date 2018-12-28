@@ -85,6 +85,7 @@ fn main () {
             DnsRecordData::A {ip_addr} => ip_addr.to_string (),
             DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
             DnsRecordData::AAAA {ip_addr} => ip_addr.to_string (),
+            DnsRecordData::NS {name} => format!("{}", name),
             DnsRecordData::None | _ => "<Unsupported>".to_owned ()
         };
 

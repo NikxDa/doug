@@ -70,6 +70,10 @@ impl DnsUtils {
                 );
                 return DnsRecordData::AAAA { ip_addr: ip_addr };
             },
+            DnsRecordType::NS => {
+                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                return DnsRecordData::NS { name: name };
+            },
             DnsRecordType::MX => {
                 let priority = DnsUtils::bytes_to_u16 (record_data[0..2].to_vec ());
                 let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
