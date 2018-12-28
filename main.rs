@@ -1,9 +1,10 @@
 // Standard Library
 use std::env;
-use crate::dns::{DnsClient, DnsRecordType, DnsClass};
+use crate::dns::{DnsClient, DnsRecordType, DnsResponse};
 use colored::*;
 use regex::Regex;
 use std::str::FromStr;
+use crate::console::Console;
 
 extern crate strum;
 #[macro_use] extern crate strum_macros;
@@ -11,14 +12,22 @@ extern crate strum;
 // Local modules
 mod dns;
 mod byte_serializable;
+mod console;
 
 fn main () {
     // Read command line args
     let args: Vec<String> = env::args().collect();
+    
+    // Create DnsClient
+    let mut dns_client = DnsClient::new ();
+    let dns_result: DnsResponse;
 
     // No args? Interactive!
     if args.len () == 1 {
-        println!("INTERACTIVE MODE");
+        let url = Console::prompt ("What domain would you like to look up?");
+        let record_type = Console::prompt ("What record type do you wish to use?");
+
+        dns_result = dns_client.lookup (url, DnsRecordType::from_str (&record_type).unwrap ());
     } else {
         // Prepare arguments (url, dns, type)
         let mut query: (String, String, String) = (
@@ -40,24 +49,22 @@ fn main () {
             }
         }
 
-        let mut dns_client = DnsClient::new ();
-
         if query.1.chars ().count () > 0 {
             dns_client.set_dns_address (query.1);
         }
 
-        let dns_result = dns_client.lookup (query.0, DnsRecordType::from_str (&*query.2).unwrap ());
+        dns_result = dns_client.lookup (query.0, DnsRecordType::from_str (&*query.2).unwrap ());
+    }
 
-        println!("DouG v0.1\n");
-        println!("Using DNS server: {}\n", dns_client.dns_addr.ip ().to_string ().blue ());
+    println!("DouG v0.1\n");
+    println!("Using DNS server: {}\n", dns_client.dns_addr.ip ().to_string ().blue ());
 
-        for record in dns_result.resource_records {
-            let ip: String = record.data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");
-            let domain: &String = &dns_result.question.name;
-            let record_type: String = record.r#type.to_string ();
+    for record in dns_result.resource_records {
+        let ip: String = record.data.iter ().map (|itm| itm.to_string ()).collect::<Vec<String>>().join (".");
+        let domain: &String = &dns_result.question.name;
+        let record_type: String = record.r#type.to_string ();
 
-            println!("{}\t\t{}\t\t{}", domain.blue (), record_type, ip.green ());
-        }
+        println!("{}\t\t{}\t\t{}", domain.blue (), record_type, ip.green ());
     }
 }
 
