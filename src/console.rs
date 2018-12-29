@@ -18,7 +18,7 @@ impl Console {
 
         println!("\x1b[1A{} {} {}", "?".green (), question.bold (), answer.cyan ());
         stdout ().flush ().expect ("Failed to flush Stdout");
-        return answer;
+        answer
     }
 
     pub fn status (status: &str) {

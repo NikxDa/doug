@@ -14,7 +14,7 @@ impl ToBytes for DnsQuestion {
         let mut name_vec = self.name.split (".").fold (Vec::new(), |mut bytes, itm| {
             bytes.push (itm.chars ().count () as u8);
             bytes.extend (itm.bytes());
-            return bytes;
+            bytes
         });
 
         let byte_vec = vec![
@@ -26,7 +26,7 @@ impl ToBytes for DnsQuestion {
         ];
 
         name_vec.extend (byte_vec);
-        return name_vec;
+        name_vec
     }
 }
 
@@ -42,7 +42,7 @@ impl FromBytes for DnsQuestion {
 
         let question_class = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
 
-        return DnsQuestion {
+        DnsQuestion {
             name: question_name,
             r#type: DnsRecordType::from_u16(question_type).expect ("Invalid question type"),
             class: DnsClass::from_u16(question_class).expect ("Invalid question class")

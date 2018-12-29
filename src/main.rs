@@ -71,7 +71,7 @@ fn interactive_mode (dns_client: &DnsClient) -> DnsMessage {
     };
 
     // Return the response
-    return dns_client.query (url, record_type);
+    dns_client.query (url, record_type)
 }
 
 fn default_mode (dns_client: &mut DnsClient, args: &Vec<String>) -> DnsMessage {
@@ -103,6 +103,6 @@ fn default_mode (dns_client: &mut DnsClient, args: &Vec<String>) -> DnsMessage {
     }
 
     // Return the response
-    return dns_client.query (query.0.to_owned (), DnsRecordType::from_str (&*query.2).unwrap ());
+    dns_client.query (query.0.to_owned (), DnsRecordType::from_str (&*query.2).unwrap ())
 }
 

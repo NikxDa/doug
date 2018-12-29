@@ -12,7 +12,7 @@ pub struct DnsHeader {
 
 impl ToBytes for DnsHeader {
     fn to_bytes (&self) -> Vec<u8> {
-        return vec![
+        vec![
             (self.id >> 8) as u8,
             self.id as u8,
             (self.options >> 8) as u8,

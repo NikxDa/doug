@@ -22,7 +22,7 @@ impl DnsClient {
         let dns_sock_addr = SocketAddr::new(IpAddr::V4 (dns_addr), 53);
         let local_sock_addr = SocketAddr::new(IpAddr::V4 (local_addr), local_port);
 
-        return DnsClient {
+        DnsClient {
             dns_addr: dns_sock_addr,
             local_addr: local_sock_addr,
             udp_socket: UdpSocket::bind(local_sock_addr).expect("Failed to bind socket")
@@ -48,13 +48,13 @@ impl DnsClient {
                         Err (_) => return self
                     }
                 } else {
-                    return self;
+                    return self
                 }
             }
         };
 
         self.dns_addr = SocketAddr::new(IpAddr::V4 (new_dns_addr), 53);
-        return self;
+        self
     }
 
     pub fn query (&self, url: String, record_type: DnsRecordType) -> DnsMessage {
@@ -84,18 +84,13 @@ impl DnsClient {
         let result = self.udp_socket.recv(&mut buf);
 
         match result {
-            Ok(length) => {
-                let response = DnsMessage::from_bytes (&buf[0..length]);
-                return response;
-            }
-            Err(_) => {
-                panic!("Did not receive correct data.");
-            }
+            Ok(length) => DnsMessage::from_bytes (&buf[0..length]),
+            Err(_) => panic!("Did not receive correct data.")
         }
     }
 
     fn get_request_id () -> u16 {
-        return rand::thread_rng().gen_range(0, 65535);
+        rand::thread_rng().gen_range(0, 65535)
     }
 
     fn get_local_dns_addr () -> Ipv4Addr {
@@ -110,12 +105,12 @@ impl DnsClient {
                     .expect ("No capture groups found.");
 
                 let default_dns: String = String::from (&captures ["dns"]);
-                return default_dns.parse ().expect ("Could not parse default DNS address.");
+                default_dns.parse ().expect ("Could not parse default DNS address.")
             }
             Err(_) => {
                 // Fallback to Google DNS
                 let fallback_dns = "8.8.8.8";
-                return fallback_dns.parse ().expect ("Could not parse fallback DNS address.");
+                fallback_dns.parse ().expect ("Could not parse fallback DNS address.")
             }
         }
     }
