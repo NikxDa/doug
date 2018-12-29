@@ -35,6 +35,10 @@ impl Console {
         println!("{}", title.bold ().blue ());
     }
 
+    pub fn info (key: &str, value: &String) {
+        println!("{}\t{}", key, value.blue ());
+    }
+
     pub fn resource_record (response: &DnsResponse, record: &DnsResourceRecord) {
         let data: String = match &record.parsed_data {
             DnsRecordData::A {ip_addr} => ip_addr.to_string (),

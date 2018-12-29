@@ -29,16 +29,16 @@ impl ByteSerializable for DnsQuestion {
         return name_vec;
     }
 
-    fn from_bytes (bytes: Vec<u8>) -> DnsQuestion {
+    fn from_bytes (bytes: &[u8]) -> DnsQuestion {
         let question_name_result = DnsUtils::read_name (&bytes, 0);
 
         let question_name = question_name_result.0;
         let mut byte_offset = question_name_result.1;
 
-        let question_type = DnsUtils::bytes_to_u16 (bytes[byte_offset..(byte_offset+2)].to_vec ());
+        let question_type = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
         byte_offset += 2;
 
-        let question_class = DnsUtils::bytes_to_u16 (bytes[byte_offset..(byte_offset+2)].to_vec ());
+        let question_class = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
 
         return DnsQuestion {
             name: question_name,

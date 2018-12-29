@@ -20,58 +20,27 @@ fn main () {
     
     // Create DnsClient
     let mut dns_client = DnsClient::new ();
-    let dns_result: DnsResponse;
 
     // Welcome users
     Console::title ("Doug v0.1");
     Console::space (1);
 
-    // No args? Interactive!
-    if args.len () == 1 {
-        Console::status ("Entering interactive mode...");
-        let url = Console::prompt ("What domain would you like to look up?");
-        let record_type = Console::prompt ("What record type do you wish to use?");
+    // Grab result from either interactive of argument mode
+    let dns_result: DnsResponse = match args.len () {
+        1 => interactive_mode (&dns_client),
+        _ => default_mode (&mut dns_client, &args)
+    };
 
-        let record_type = match DnsRecordType::from_str (&record_type) {
-            Ok(itm) => itm,
-            Err(_) => DnsRecordType::A
-        };
+    // Print info
+    Console::status (&*format!(
+        "Querying {} records of {} via {}...",
+        dns_result.question.r#type.to_string ().cyan (),
+        dns_result.question.name.cyan (),
+        dns_client.dns_addr.ip ().to_string ().cyan ()
+    ));
+    Console::space (1);
 
-        dns_result = dns_client.lookup (url, record_type);
-        Console::space (1);
-    } else {
-        // Prepare arguments (url, dns, type)
-        let mut query: (String, String, String) = (
-            "".to_string (),
-            "".to_string (),
-            "A".to_string ()
-        );
-
-        let dns_regex = Regex::new (r"@.+").unwrap ();
-        let type_regex = Regex::new (r"[A-Z]{1,5}").unwrap ();
-
-        for itm in args {
-            if dns_regex.is_match (&itm) {
-                query.1 = itm.chars ().skip (1).collect ();
-            } else if type_regex.is_match (&itm) {
-                query.2 = itm;
-            } else {
-                query.0 = itm;
-            }
-        }
-
-        if query.1.chars ().count () > 0 {
-            dns_client.set_dns_address (query.1);
-        }
-
-        dns_result = dns_client.lookup (query.0, DnsRecordType::from_str (&*query.2).unwrap ());
-    }
-
-    println!("Host:\t\t{}", dns_result.question.name.blue ());
-    println!("DNS Server:\t{}", dns_client.dns_addr.ip ().to_string ().blue ());
-    println!("Record Type:\t{}", dns_result.question.r#type.to_string ().blue ());
-    println!("");
-
+    // Print all resource records with section titles
     for record_index in 0..dns_result.resource_records.len () {
         if record_index == 0 {
             println!("{}", "Answer Section:".bright_black ());
@@ -86,11 +55,54 @@ fn main () {
     }
 }
 
-fn interactive_mode () {
+fn interactive_mode (dns_client: &DnsClient) -> DnsResponse {
+    // Print interactive notice
+    Console::status ("Entering interactive mode...");
 
+    // Query necessary data
+    let url = Console::prompt ("What domain would you like to look up?");
+    let record_type = Console::prompt ("What record type do you wish to use?");
+    Console::space (1);
+
+    // Match the record type, fallback to A
+    let record_type = match DnsRecordType::from_str (&record_type) {
+        Ok(itm) => itm,
+        Err(_) => DnsRecordType::A
+    };
+
+    // Return the response
+    return dns_client.query (url, record_type);
 }
 
-fn default_mode () {
+fn default_mode (dns_client: &mut DnsClient, args: &Vec<String>) -> DnsResponse {
+    // Prepare arguments (url, dns, type)
+    let mut query: (String, String, String) = (
+        "".to_owned (), 
+        "".to_owned (), 
+        "A".to_owned ()
+    );
 
+    // Prepare Regex to read data
+    let dns_regex = Regex::new (r"@.+").unwrap ();
+    let type_regex = Regex::new (r"[A-Z]{1,5}").unwrap ();
+
+    // Parse arguments
+    for itm in args {
+        if dns_regex.is_match (&itm) {
+            query.1 = itm.chars ().skip (1).collect::<String>();
+        } else if type_regex.is_match (&itm) {
+            query.2 = itm.clone ();
+        } else {
+            query.0 = itm.clone ();
+        }
+    }
+
+    // Set the DNS address if necessary
+    if query.1.chars ().count () > 0 {
+        dns_client.set_dns_address (query.1.to_owned ());
+    }
+
+    // Return the response
+    return dns_client.query (query.0.to_owned (), DnsRecordType::from_str (&*query.2).unwrap ());
 }
 

@@ -8,7 +8,7 @@ use crate::byte_serializable::ByteSerializable;
 
 pub struct DnsClient {
     udp_socket: UdpSocket,
-    local_addr: SocketAddr,
+    pub local_addr: SocketAddr,
     pub dns_addr: SocketAddr
 }
 
@@ -33,7 +33,7 @@ impl DnsClient {
         let new_dns_addr: Ipv4Addr = match dns_addr.parse () {
             Ok(itm) => itm,
             Err(_) => {
-                let records: Vec<DnsResourceRecord> = self.lookup (dns_addr, DnsRecordType::A).resource_records;
+                let records: Vec<DnsResourceRecord> = self.query (dns_addr, DnsRecordType::A).resource_records;
                 if records.len () > 0 {
                     let ip_string: String = records
                         .first ()
@@ -57,7 +57,7 @@ impl DnsClient {
         return self;
     }
 
-    pub fn lookup (&self, url: String, record_type: DnsRecordType) -> DnsResponse {
+    pub fn query (&self, url: String, record_type: DnsRecordType) -> DnsResponse {
         let dns_header = DnsHeader {
             id: Self::get_request_id (),
             options: 0b_0000000100000000,
@@ -84,8 +84,7 @@ impl DnsClient {
 
         match result {
             Ok(length) => {
-                let data_vec = buf[0..length].to_vec ();
-                let response = DnsResponse::from_bytes (data_vec);
+                let response = DnsResponse::from_bytes (&buf[0..length]);
                 return response;
             }
             Err(_) => {

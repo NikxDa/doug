@@ -1,10 +1,10 @@
-use crate::dns::{DnsRecordType, DnsRecordData, DnsResourceRecord};
+use crate::dns::{DnsRecordType, DnsRecordData};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 pub struct DnsUtils;
 
 impl DnsUtils {
-    pub fn read_name (bytes: &Vec<u8>, mut offset: usize) -> (String, usize) {
+    pub fn read_name (bytes: &[u8], mut offset: usize) -> (String, usize) {
         let mut name = String::new ();
         let mut bytes_read: usize = 0;
 
@@ -30,7 +30,7 @@ impl DnsUtils {
                     }
                 }
                 0b00000011 => {
-                    let pointer_offset = (DnsUtils::bytes_to_u16(bytes[offset..(offset+2)].to_vec ()) ^ 0b1100_0000_0000_0000) as usize;
+                    let pointer_offset = (DnsUtils::bytes_to_u16(&bytes[offset..(offset+2)]) ^ 0b1100_0000_0000_0000) as usize;
                     name.push_str (&DnsUtils::read_name (&bytes, pointer_offset).0);
                     bytes_read += 2;
                     break;
@@ -44,7 +44,7 @@ impl DnsUtils {
         (name, bytes_read)
     }
 
-    pub fn read_character_string (bytes: &Vec<u8>, offset: usize) -> (String, usize) {
+    pub fn read_character_string (bytes: &[u8], offset: usize) -> (String, usize) {
         let mut text = String::new ();
 
         let string_length = bytes[offset];
@@ -55,7 +55,7 @@ impl DnsUtils {
         return (text, string_length as usize);
     }
 
-    pub fn read_resource_record_data (bytes: &Vec<u8>, record_type: DnsRecordType, record_data_offset: usize, record_data_length: usize) -> DnsRecordData {
+    pub fn read_resource_record_data (bytes: &[u8], record_type: DnsRecordType, record_data_offset: usize, record_data_length: usize) -> DnsRecordData {
         let record_data: Vec<u8> = bytes[record_data_offset..(record_data_offset + record_data_length)].to_vec ();
         
         match record_type {
@@ -90,7 +90,7 @@ impl DnsUtils {
                 return DnsRecordData::NS { name: name };
             },
             DnsRecordType::MX => {
-                let priority = DnsUtils::bytes_to_u16 (record_data[0..2].to_vec ());
+                let priority = DnsUtils::bytes_to_u16 (&record_data[0..2]);
                 let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
                 return DnsRecordData::MX { priority: priority, name: name };
             },
@@ -104,17 +104,17 @@ impl DnsUtils {
         }
     }
 
-    pub fn bytes_to_u16 (mut bytes: Vec<u8>) -> u16 {
+    pub fn bytes_to_u16 (bytes: &[u8]) -> u16 {
         return 
-              (bytes.remove (0) as u16) << 8 
-            | (bytes.remove (0) as u16);
+              (bytes[0] as u16) << 8 
+            | (bytes[1] as u16);
     }
 
-    pub fn bytes_to_u32 (mut bytes: Vec<u8>) -> u32 {
+    pub fn bytes_to_u32 (bytes: &[u8]) -> u32 {
         return 
-              (bytes.remove (0) as u32) << 24 
-            | (bytes.remove (0) as u32) << 16 
-            | (bytes.remove (0) as u32) << 8 
-            | (bytes.remove (0) as u32);
+              (bytes[0] as u32) << 24 
+            | (bytes[1] as u32) << 16 
+            | (bytes[2] as u32) << 8 
+            | (bytes[3] as u32);
     }
 }

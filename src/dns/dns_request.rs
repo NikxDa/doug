@@ -14,9 +14,9 @@ impl ByteSerializable for DnsRequest {
         return byte_vec;
     }
 
-    fn from_bytes (bytes: Vec<u8>) -> DnsRequest {
-        let header_bytes = bytes[0..12].to_vec ();
-        let question_bytes = bytes[12..bytes.len()].to_vec ();
+    fn from_bytes (bytes: &[u8]) -> DnsRequest {
+        let header_bytes = &bytes[0..12];
+        let question_bytes = &bytes[12..bytes.len()];
 
         return DnsRequest {
             header: DnsHeader::from_bytes (header_bytes) as DnsHeader,

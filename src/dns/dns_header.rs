@@ -1,4 +1,5 @@
 use crate::byte_serializable::ByteSerializable;
+use crate::dns::DnsUtils;
 
 pub struct DnsHeader {
     pub id: u16,
@@ -27,14 +28,14 @@ impl ByteSerializable for DnsHeader {
         ]
     }
 
-    fn from_bytes (mut bytes: Vec<u8>) -> DnsHeader {
+    fn from_bytes (bytes: &[u8]) -> DnsHeader {
         return DnsHeader {
-            id: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16),
-            options: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16),
-            question_count: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16),
-            answer_count: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16),
-            authority_count: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16),
-            additional_count: ((bytes.remove (0) as u16) << 8) | (bytes.remove (0) as u16)
+            id: DnsUtils::bytes_to_u16 (&bytes[0..2]),
+            options: DnsUtils::bytes_to_u16 (&bytes[2..4]),
+            question_count: DnsUtils::bytes_to_u16 (&bytes[4..6]),
+            answer_count: DnsUtils::bytes_to_u16 (&bytes[6..8]),
+            authority_count: DnsUtils::bytes_to_u16 (&bytes[8..10]),
+            additional_count: DnsUtils::bytes_to_u16 (&bytes[10..12])
         }
     }
 }

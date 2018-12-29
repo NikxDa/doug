@@ -17,12 +17,12 @@ impl ByteSerializable for DnsResponse {
         return byte_vec;
     }
 
-    fn from_bytes (bytes: Vec<u8>) -> DnsResponse {
+    fn from_bytes (bytes: &[u8]) -> DnsResponse {
         // Define offset
         let mut byte_offset: usize = 0;
 
         // Read Header bytes
-        let header_bytes = bytes[0..12].to_vec ();
+        let header_bytes = &bytes[0..12];
         byte_offset += header_bytes.len ();
 
         // Read Question bytes
@@ -41,16 +41,16 @@ impl ByteSerializable for DnsResponse {
             let (record_name, bytes_read) = DnsUtils::read_name (&bytes, byte_offset);
             byte_offset += bytes_read;
 
-            let record_type = DnsUtils::bytes_to_u16 (bytes[byte_offset..(byte_offset+2)].to_vec ());
+            let record_type = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
             byte_offset += 2;
 
-            let record_class = DnsUtils::bytes_to_u16 (bytes[byte_offset..(byte_offset+2)].to_vec ());
+            let record_class = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
             byte_offset += 2;
 
-            let record_ttl = DnsUtils::bytes_to_u32 (bytes[byte_offset..(byte_offset+4)].to_vec ());
+            let record_ttl = DnsUtils::bytes_to_u32 (&bytes[byte_offset..(byte_offset+4)]);
             byte_offset += 4;
 
-            let record_data_length = DnsUtils::bytes_to_u16 (bytes[byte_offset..(byte_offset+2)].to_vec ());
+            let record_data_length = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
             byte_offset += 2;
 
             let record_data = bytes[byte_offset..(byte_offset+(record_data_length as usize))].to_vec ();
@@ -76,7 +76,7 @@ impl ByteSerializable for DnsResponse {
 
         return DnsResponse {
             header: DnsHeader::from_bytes (header_bytes) as DnsHeader,
-            question: DnsQuestion::from_bytes (question_bytes),
+            question: DnsQuestion::from_bytes (&question_bytes),
             resource_records: resource_records
         }
     }
