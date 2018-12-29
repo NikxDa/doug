@@ -4,7 +4,7 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 pub struct DnsUtils;
 
 impl DnsUtils {
-    pub fn read_name (bytes: &[u8], mut offset: usize) -> (String, usize) {
+    pub fn read_domain_name (bytes: &[u8], mut offset: usize) -> (String, usize) {
         let mut name = String::new ();
         let mut bytes_read: usize = 0;
 
@@ -31,7 +31,7 @@ impl DnsUtils {
                 }
                 0b00000011 => {
                     let pointer_offset = (DnsUtils::bytes_to_u16(&bytes[offset..(offset+2)]) ^ 0b1100_0000_0000_0000) as usize;
-                    name.push_str (&DnsUtils::read_name (&bytes, pointer_offset).0);
+                    name.push_str (&DnsUtils::read_domain_name (&bytes, pointer_offset).0);
                     bytes_read += 2;
                     break;
                 }
@@ -82,20 +82,20 @@ impl DnsUtils {
                 return DnsRecordData::AAAA { ip_addr: ip_addr };
             },
             DnsRecordType::NS => {
-                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                let name = DnsUtils::read_domain_name (&bytes, record_data_offset).0;
                 return DnsRecordData::NS { name: name };
             },
             DnsRecordType::CNAME => {
-                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                let name = DnsUtils::read_domain_name (&bytes, record_data_offset).0;
                 return DnsRecordData::CNAME { name: name };
             },
             DnsRecordType::PTR => {
-                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                let name = DnsUtils::read_domain_name (&bytes, record_data_offset).0;
                 return DnsRecordData::PTR { name: name };
             },
             DnsRecordType::MX => {
                 let priority = DnsUtils::bytes_to_u16 (&record_data[0..2]);
-                let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
+                let name = DnsUtils::read_domain_name (&bytes, record_data_offset + 2).0;
                 return DnsRecordData::MX { priority: priority, name: name };
             },
             DnsRecordType::TXT => {
@@ -106,6 +106,20 @@ impl DnsUtils {
                 return DnsRecordData::None;
             }
         }
+    }
+
+    pub fn domain_name_to_bytes (name: &String) -> Vec<u8> {
+        name
+            .split (".")
+            .map (|itm| -> Vec<u8> {
+                let mut vec = vec![itm.chars ().count () as u8];
+                vec.extend (itm.chars ().map (|ch| ch as u8));
+                vec
+            })
+            .fold (Vec::new (), |mut vec, itm| {
+                vec.extend (itm);
+                vec
+            })
     }
 
     pub fn bytes_to_u16 (bytes: &[u8]) -> u16 {

@@ -3,8 +3,8 @@ use std::fs;
 use regex::Regex;
 use rand::Rng;
 
-use crate::dns::{DnsHeader, DnsQuestion, DnsResourceRecord, DnsRequest, DnsResponse, DnsClass, DnsRecordType};
-use crate::byte_serializable::ByteSerializable;
+use crate::dns::{DnsHeader, DnsQuestion, DnsResourceRecord, DnsMessage, DnsClass, DnsRecordType};
+use crate::byte_serializable::*;
 
 pub struct DnsClient {
     udp_socket: UdpSocket,
@@ -57,7 +57,7 @@ impl DnsClient {
         return self;
     }
 
-    pub fn query (&self, url: String, record_type: DnsRecordType) -> DnsResponse {
+    pub fn query (&self, url: String, record_type: DnsRecordType) -> DnsMessage {
         let dns_header = DnsHeader {
             id: Self::get_request_id (),
             options: 0b_0000000100000000,
@@ -73,9 +73,10 @@ impl DnsClient {
             class: DnsClass::Internet
         };
 
-        let dns_request = DnsRequest {
+        let dns_request = DnsMessage {
             header: dns_header,
-            question: dns_question
+            question: dns_question,
+            resource_records: vec![]
         };
 
         let mut buf = [0u8; 512];
@@ -84,7 +85,7 @@ impl DnsClient {
 
         match result {
             Ok(length) => {
-                let response = DnsResponse::from_bytes (&buf[0..length]);
+                let response = DnsMessage::from_bytes (&buf[0..length]);
                 return response;
             }
             Err(_) => {

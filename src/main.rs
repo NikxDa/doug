@@ -1,6 +1,6 @@
 // Standard Library
 use std::env;
-use crate::dns::{DnsClient, DnsRecordType, DnsResponse};
+use crate::dns::{DnsClient, DnsRecordType, DnsMessage};
 use colored::*;
 use regex::Regex;
 use std::str::FromStr;
@@ -26,7 +26,7 @@ fn main () {
     Console::space (1);
 
     // Grab result from either interactive of argument mode
-    let dns_result: DnsResponse = match args.len () {
+    let dns_result: DnsMessage = match args.len () {
         1 => interactive_mode (&dns_client),
         _ => default_mode (&mut dns_client, &args)
     };
@@ -55,7 +55,7 @@ fn main () {
     }
 }
 
-fn interactive_mode (dns_client: &DnsClient) -> DnsResponse {
+fn interactive_mode (dns_client: &DnsClient) -> DnsMessage {
     // Print interactive notice
     Console::status ("Entering interactive mode...");
 
@@ -74,7 +74,7 @@ fn interactive_mode (dns_client: &DnsClient) -> DnsResponse {
     return dns_client.query (url, record_type);
 }
 
-fn default_mode (dns_client: &mut DnsClient, args: &Vec<String>) -> DnsResponse {
+fn default_mode (dns_client: &mut DnsClient, args: &Vec<String>) -> DnsMessage {
     // Prepare arguments (url, dns, type)
     let mut query: (String, String, String) = (
         "".to_owned (), 

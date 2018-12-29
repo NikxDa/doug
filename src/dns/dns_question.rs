@@ -9,7 +9,7 @@ pub struct DnsQuestion {
     pub class: DnsClass
 }
 
-impl ByteSerializable for DnsQuestion {
+impl ToBytes for DnsQuestion {
     fn to_bytes (&self) -> Vec<u8> {
         let mut name_vec = self.name.split (".").fold (Vec::new(), |mut bytes, itm| {
             bytes.push (itm.chars ().count () as u8);
@@ -28,9 +28,11 @@ impl ByteSerializable for DnsQuestion {
         name_vec.extend (byte_vec);
         return name_vec;
     }
+}
 
+impl FromBytes for DnsQuestion {
     fn from_bytes (bytes: &[u8]) -> DnsQuestion {
-        let question_name_result = DnsUtils::read_name (&bytes, 0);
+        let question_name_result = DnsUtils::read_domain_name (&bytes, 0);
 
         let question_name = question_name_result.0;
         let mut byte_offset = question_name_result.1;

@@ -3,21 +3,26 @@ use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordType, DnsResourceRec
 
 use num_traits::{FromPrimitive};
 
-pub struct DnsResponse {
+pub struct DnsMessage {
     pub header: DnsHeader,
     pub question: DnsQuestion,
     pub resource_records: Vec<DnsResourceRecord>
 }
 
-impl ByteSerializable for DnsResponse {
+impl ToBytes for DnsMessage {
     fn to_bytes (&self) -> Vec<u8> {
         let mut byte_vec = Vec::new ();
         byte_vec.extend (self.header.to_bytes ());
         byte_vec.extend (self.question.to_bytes ());
-        return byte_vec;
+        for i in 0..self.resource_records.len () {
+            byte_vec.extend (self.resource_records[i].to_bytes ());
+        }
+        byte_vec
     }
+}
 
-    fn from_bytes (bytes: &[u8]) -> DnsResponse {
+impl FromBytes for DnsMessage {
+    fn from_bytes (bytes: &[u8]) -> DnsMessage {
         // Define offset
         let mut byte_offset: usize = 0;
 
@@ -38,7 +43,7 @@ impl ByteSerializable for DnsResponse {
         let mut resource_records: Vec<DnsResourceRecord> = Vec::new ();
 
         while byte_offset < bytes.len () {
-            let (record_name, bytes_read) = DnsUtils::read_name (&bytes, byte_offset);
+            let (record_name, bytes_read) = DnsUtils::read_domain_name (&bytes, byte_offset);
             byte_offset += bytes_read;
 
             let record_type = DnsUtils::bytes_to_u16 (&bytes[byte_offset..(byte_offset+2)]);
@@ -74,7 +79,7 @@ impl ByteSerializable for DnsResponse {
             });
         }
 
-        return DnsResponse {
+        DnsMessage {
             header: DnsHeader::from_bytes (header_bytes) as DnsHeader,
             question: DnsQuestion::from_bytes (&question_bytes),
             resource_records: resource_records

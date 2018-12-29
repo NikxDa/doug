@@ -39,7 +39,7 @@ impl Console {
         println!("{}\t{}", key, value.blue ());
     }
 
-    pub fn resource_record (response: &DnsResponse, record: &DnsResourceRecord) {
+    pub fn resource_record (response: &DnsMessage, record: &DnsResourceRecord) {
         let data: String = match &record.parsed_data {
             DnsRecordData::A {ip_addr} => ip_addr.to_string (),
             DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
