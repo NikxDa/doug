@@ -1,6 +1,6 @@
 // Standard Library
 use std::env;
-use crate::dns::{DnsClient, DnsRecordData, DnsRecordType, DnsResponse};
+use crate::dns::{DnsClient, DnsRecordType, DnsResponse};
 use colored::*;
 use regex::Regex;
 use std::str::FromStr;
@@ -23,14 +23,15 @@ fn main () {
     let dns_result: DnsResponse;
 
     // Welcome users
-    println!("{}\n", "DouG v0.1".bold ().blue ());
+    Console::title ("Doug v0.1");
+    Console::space (1);
 
     // Save url for later
     let query_url: String;
 
     // No args? Interactive!
     if args.len () == 1 {
-        println!("{}", "Entering interactive mode...".bright_black ());
+        Console::status ("Entering interactive mode...");
         let url = Console::prompt ("What domain would you like to look up?");
         let record_type = Console::prompt ("What record type do you wish to use?");
 
@@ -41,7 +42,7 @@ fn main () {
 
         query_url = url.clone ();
         dns_result = dns_client.lookup (url, record_type);
-        println!("");
+        Console::space (1);
     } else {
         // Prepare arguments (url, dns, type)
         let mut query: (String, String, String) = (
@@ -86,18 +87,7 @@ fn main () {
         }
 
         let record = &dns_result.resource_records [record_index];
-        let data: String = match &record.parsed_data {
-            DnsRecordData::A {ip_addr} => ip_addr.to_string (),
-            DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
-            DnsRecordData::AAAA {ip_addr} => ip_addr.to_string (),
-            DnsRecordData::NS {name} => format!("{}", name),
-            DnsRecordData::None | _ => "<Unsupported>".to_owned ()
-        };
-
-        let domain: &String = &dns_result.question.name;
-        let record_type: String = record.r#type.to_string ();
-
-        println!("{}\t\t{}\t{}\t\t{}", domain.blue (), record_type, record.ttl.to_string (), data.green ());
+        Console::resource_record(&dns_result, record);
     }
 }
 

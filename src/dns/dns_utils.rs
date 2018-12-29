@@ -44,6 +44,17 @@ impl DnsUtils {
         (name, bytes_read)
     }
 
+    pub fn read_character_string (bytes: &Vec<u8>, mut offset: usize) -> (String, usize) {
+        let mut text = String::new ();
+
+        let string_length = bytes[offset];
+        for i in 1..=string_length {
+            text.push (bytes[offset + (i as usize)] as char);
+        }
+
+        return (text, string_length as usize);
+    }
+
     pub fn read_resource_record_data (bytes: &Vec<u8>, record_type: DnsRecordType, record_data_offset: usize, record_data_length: usize) -> DnsRecordData {
         let record_data: Vec<u8> = bytes[record_data_offset..(record_data_offset + record_data_length)].to_vec ();
         
@@ -78,6 +89,10 @@ impl DnsUtils {
                 let priority = DnsUtils::bytes_to_u16 (record_data[0..2].to_vec ());
                 let name = DnsUtils::read_name (&bytes, record_data_offset + 2).0;
                 return DnsRecordData::MX { priority: priority, name: name };
+            },
+            DnsRecordType::TXT => {
+                let text = DnsUtils::read_character_string (&bytes, record_data_offset).0;
+                return DnsRecordData::TXT { text: text };
             },
             _ => {
                 return DnsRecordData::None;
