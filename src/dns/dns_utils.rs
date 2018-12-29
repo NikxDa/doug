@@ -44,7 +44,7 @@ impl DnsUtils {
         (name, bytes_read)
     }
 
-    pub fn read_character_string (bytes: &Vec<u8>, mut offset: usize) -> (String, usize) {
+    pub fn read_character_string (bytes: &Vec<u8>, offset: usize) -> (String, usize) {
         let mut text = String::new ();
 
         let string_length = bytes[offset];
@@ -82,6 +82,10 @@ impl DnsUtils {
                 return DnsRecordData::AAAA { ip_addr: ip_addr };
             },
             DnsRecordType::NS => {
+                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                return DnsRecordData::NS { name: name };
+            },
+            DnsRecordType::CNAME => {
                 let name = DnsUtils::read_name (&bytes, record_data_offset).0;
                 return DnsRecordData::NS { name: name };
             },

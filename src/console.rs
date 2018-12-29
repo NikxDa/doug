@@ -41,6 +41,7 @@ impl Console {
             DnsRecordData::MX {priority, name} => format!("{} ({})", name, priority),
             DnsRecordData::AAAA {ip_addr} => ip_addr.to_string (),
             DnsRecordData::NS {name} => format!("{}", name),
+            DnsRecordData::CNAME {name} => format!("{}", name),
             DnsRecordData::TXT {text} => format!("\"{}\"", text),
             DnsRecordData::None | _ => "<Unsupported>".to_owned ()
         };
