@@ -87,7 +87,11 @@ impl DnsUtils {
             },
             DnsRecordType::CNAME => {
                 let name = DnsUtils::read_name (&bytes, record_data_offset).0;
-                return DnsRecordData::NS { name: name };
+                return DnsRecordData::CNAME { name: name };
+            },
+            DnsRecordType::PTR => {
+                let name = DnsUtils::read_name (&bytes, record_data_offset).0;
+                return DnsRecordData::PTR { name: name };
             },
             DnsRecordType::MX => {
                 let priority = DnsUtils::bytes_to_u16 (&record_data[0..2]);

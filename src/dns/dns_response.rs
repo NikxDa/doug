@@ -1,5 +1,5 @@
 use crate::byte_serializable::*;
-use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordData, DnsRecordType, DnsResourceRecord, DnsUtils};
+use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordType, DnsResourceRecord, DnsUtils};
 
 use num_traits::{FromPrimitive};
 
