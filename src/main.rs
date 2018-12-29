@@ -26,9 +26,6 @@ fn main () {
     Console::title ("Doug v0.1");
     Console::space (1);
 
-    // Save url for later
-    let query_url: String;
-
     // No args? Interactive!
     if args.len () == 1 {
         Console::status ("Entering interactive mode...");
@@ -40,7 +37,6 @@ fn main () {
             Err(_) => DnsRecordType::A
         };
 
-        query_url = url.clone ();
         dns_result = dns_client.lookup (url, record_type);
         Console::space (1);
     } else {
@@ -68,11 +64,10 @@ fn main () {
             dns_client.set_dns_address (query.1);
         }
 
-        query_url = query.0.clone ();
         dns_result = dns_client.lookup (query.0, DnsRecordType::from_str (&*query.2).unwrap ());
     }
 
-    println!("Host:\t\t{}", query_url.blue ());
+    println!("Host:\t\t{}", dns_result.question.name.blue ());
     println!("DNS Server:\t{}", dns_client.dns_addr.ip ().to_string ().blue ());
     println!("Record Type:\t{}", dns_result.question.r#type.to_string ().blue ());
     println!("");
@@ -89,5 +84,13 @@ fn main () {
         let record = &dns_result.resource_records [record_index];
         Console::resource_record(&dns_result, record);
     }
+}
+
+fn interactive_mode () {
+
+}
+
+fn default_mode () {
+
 }
 
