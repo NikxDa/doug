@@ -16,10 +16,10 @@ impl ToBytes for DnsResourceRecord {
         let mut bytes = Vec::new ();
         bytes.extend (DnsUtils::domain_name_to_bytes (&self.name));
         bytes.extend (vec![
-            (self.r#type as u16 >> 8) as u8,
-            self.r#type as u8,
-            (self.class as u16 >> 8) as u8,
-            self.class as u8,
+            (self.r#type.as_u16 () >> 8) as u8,
+            self.r#type.as_u16 () as u8,
+            (self.class.as_u16 () >> 8) as u8,
+            self.class.as_u16 () as u8,
             (self.ttl as u32 >> 24) as u8,
             (self.ttl as u32 >> 16) as u8,
             (self.ttl as u32 >> 8) as u8,

@@ -1,8 +1,6 @@
 use crate::dns::{DnsRecordType, DnsClass, DnsUtils};
 use crate::byte_serializable::*;
 
-use num_traits::{FromPrimitive};
-
 pub struct DnsQuestion {
     pub name: String,
     pub r#type: DnsRecordType,
@@ -19,10 +17,10 @@ impl ToBytes for DnsQuestion {
 
         let byte_vec = vec![
             0 as u8,
-            (self.r#type as u16 >> 8) as u8,
-            self.r#type as u8,
-            (self.class as u16 >> 8) as u8,
-            self.class as u8
+            (self.r#type.as_u16 () >> 8) as u8,
+            self.r#type.as_u16 () as u8,
+            (self.class.as_u16 () >> 8) as u8,
+            self.class.as_u16 () as u8
         ];
 
         name_vec.extend (byte_vec);
@@ -44,8 +42,8 @@ impl FromBytes for DnsQuestion {
 
         DnsQuestion {
             name: question_name,
-            r#type: DnsRecordType::from_u16(question_type).expect ("Invalid question type"),
-            class: DnsClass::from_u16(question_class).expect ("Invalid question class")
+            r#type: DnsRecordType::from_u16(question_type),
+            class: DnsClass::from_u16(question_class)
         }
     }
 }

@@ -8,6 +8,7 @@ mod dns_question;
 mod dns_message;
 mod dns_resource_record;
 mod dns_utils;
+mod dns_edns_option;
 
 pub use self::dns_class::DnsClass;
 pub use self::dns_client::DnsClient;
@@ -19,3 +20,4 @@ pub use self::dns_question::DnsQuestion;
 pub use self::dns_message::DnsMessage;
 pub use self::dns_resource_record::DnsResourceRecord;
 pub use self::dns_utils::DnsUtils;
+pub use self::dns_edns_option::EdnsOption;

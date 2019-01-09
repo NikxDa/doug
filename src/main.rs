@@ -44,7 +44,7 @@ fn main () {
     for record_index in 0..dns_result.resource_records.len () {
         if record_index == 0 {
             println!("{}", "Answer Section:".bright_black ());
-        } else if record_index == dns_result.header.answer_count as usize {
+        } else if record_index == dns_result.header.answer_count as usize && dns_result.header.authority_count > 0 {
             println!("\n{}", "Authority Section:".bright_black ());
         } else if record_index == (dns_result.header.answer_count + dns_result.header.authority_count) as usize {
             println!("\n{}", "Additional Section:".bright_black ());

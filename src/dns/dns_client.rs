@@ -3,7 +3,7 @@ use std::fs;
 use regex::Regex;
 use rand::Rng;
 
-use crate::dns::{DnsHeader, DnsQuestion, DnsResourceRecord, DnsMessage, DnsClass, DnsRecordType};
+use crate::dns::*;
 use crate::byte_serializable::*;
 
 pub struct DnsClient {
@@ -64,7 +64,7 @@ impl DnsClient {
             question_count: 1,
             answer_count: 0,
             authority_count: 0,
-            additional_count: 0
+            additional_count: 1
         };
 
         let dns_question = DnsQuestion {
@@ -76,16 +76,18 @@ impl DnsClient {
         let dns_request = DnsMessage {
             header: dns_header,
             question: dns_question,
-            resource_records: vec![]
+            resource_records: vec![
+                DnsUtils::edns_resource_record ()
+            ]
         };
 
-        let mut buf = [0u8; 512];
+        let mut buf = [0u8; 4096];
         self.udp_socket.send_to (&dns_request.to_bytes (), self.dns_addr).expect ("Failed to send DNS request.");
         let result = self.udp_socket.recv(&mut buf);
 
         match result {
             Ok(length) => DnsMessage::from_bytes (&buf[0..length]),
-            Err(_) => panic!("Did not receive correct data.")
+            Err(_) => panic!("Did not receive valid data.")
         }
     }
 

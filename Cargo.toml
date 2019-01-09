@@ -7,11 +7,10 @@ edition = "2018"
 [dependencies]
 rand = "0.4"
 colored = "1.6"
-enum-primitive-derive = "^0.1"
-num-traits = "^0.1"
 regex="1"
 strum = "0.13.0"
 strum_macros = "0.13.0"
+either="1.5.0"
 
 [[bin]]
 name = "doug"

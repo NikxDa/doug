@@ -1,4 +1,5 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
+use crate::dns::EdnsOption;
 
 #[derive(Debug, Clone)]
 pub enum DnsRecordData {
@@ -10,6 +11,7 @@ pub enum DnsRecordData {
     HINFO   { cpu: String, os: String },
     NS      { name: String },
     PTR     { name: String },
-
+    OPT     { options: Vec<EdnsOption> },
+    
     None
 }   

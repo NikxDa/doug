@@ -48,6 +48,14 @@ impl Console {
             DnsRecordData::CNAME {name} => format!("{}", name),
             DnsRecordData::PTR {name} => format!("{}", name),
             DnsRecordData::TXT {text} => format!("\"{}\"", text),
+            DnsRecordData::OPT {options: _} => {
+                let edns_version = (record.ttl >> 16 as u8);
+                let edns_dnssec = match (record.ttl & (1 << 15)) {
+                    0 => "Disabled",
+                    _ => "Enabled"
+                };
+                format!("EDNS Version: {}, DNSSEC: {}", edns_version, edns_dnssec)
+            },
             DnsRecordData::None | _ => "<Unsupported>".to_owned ()
         };
 

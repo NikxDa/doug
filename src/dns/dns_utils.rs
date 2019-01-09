@@ -1,4 +1,4 @@
-use crate::dns::{DnsRecordType, DnsRecordData};
+use crate::dns::*;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 pub struct DnsUtils;
@@ -102,6 +102,9 @@ impl DnsUtils {
                 let text = DnsUtils::read_character_string (&bytes, record_data_offset).0;
                 DnsRecordData::TXT { text: text }
             },
+            DnsRecordType::OPT => {
+                DnsRecordData::OPT { options: vec![] }
+            },
             _ => {
                 DnsRecordData::None
             }
@@ -109,7 +112,7 @@ impl DnsUtils {
     }
 
     pub fn domain_name_to_bytes (name: &String) -> Vec<u8> {
-        name
+        let mut bytes = name
             .split (".")
             .map (|itm| -> Vec<u8> {
                 let mut vec = vec![itm.chars ().count () as u8];
@@ -119,7 +122,25 @@ impl DnsUtils {
             .fold (Vec::new (), |mut vec, itm| {
                 vec.extend (itm);
                 vec
-            })
+            });
+
+        if bytes.len () > 1 {
+            bytes.push (0);
+        }
+
+        bytes
+    }
+
+    pub fn edns_resource_record () -> DnsResourceRecord {
+        DnsResourceRecord {
+            name: "".to_owned (),
+            r#type: DnsRecordType::OPT,
+            class: DnsClass::Custom (4096),
+            ttl: 1 << 15,
+            length: 0,
+            data: vec![],
+            parsed_data: DnsRecordData::None
+        }
     }
 
     pub fn bytes_to_u16 (bytes: &[u8]) -> u16 {

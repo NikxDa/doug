@@ -1,8 +1,6 @@
 use crate::byte_serializable::*;
 use crate::dns::{DnsHeader, DnsQuestion, DnsClass, DnsRecordType, DnsResourceRecord, DnsUtils};
 
-use num_traits::{FromPrimitive};
-
 pub struct DnsMessage {
     pub header: DnsHeader,
     pub question: DnsQuestion,
@@ -63,15 +61,15 @@ impl FromBytes for DnsMessage {
 
             let parsed_data = DnsUtils::read_resource_record_data (
                 &bytes,
-                DnsRecordType::from_u16(record_type).unwrap (),
+                DnsRecordType::from_u16(record_type),
                 byte_offset - record_data_length as usize,
                 record_data_length as usize
             );
 
             resource_records.push (DnsResourceRecord {
                 name: record_name,
-                r#type: DnsRecordType::from_u16(record_type).unwrap (),
-                class: DnsClass::from_u16(record_class).unwrap (),
+                r#type: DnsRecordType::from_u16 (record_type),
+                class: DnsClass::from_u16 (record_class),
                 ttl: record_ttl,
                 length: record_data_length,
                 data: record_data,
